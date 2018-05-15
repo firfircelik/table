@@ -1,0 +1,93 @@
+package table
+
+import (
+	"unicode/utf8"
+)
+
+// ParseAligned table. Tries to parse table which looks like this:
+// a   b   c
+// aa  bb  c
+// a  bbb  c
+//
+// Please consult tests to see in which situations this function
+// performs well and in which it does not.
+// Number of columns in the table needs to be provided.
+// If none of the rows has the expected number of column, error is returned.
+// WARNING: This function does work only with ASCII strings
+// (so result might be wrong for UTF-8 strings)
+func ParseAligned(lines []string, nbColumn int) (Parsed, error) {
+	cols, err := columns(lines, nbColumn)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]parsedLine, len(lines))
+	for i, line := range lines {
+		result[i] = parsedLine{
+			parsed:   splitByCols(line, cols),
+			original: line}
+	}
+	return result, nil
+}
+
+func splitByCols(line string, cols []column) []string {
+	splitted := make([]string, len(cols))
+	for i, c := range cols {
+		if len(line) >= c.to {
+			from := findFrom(line, cols, i)
+			to := findTo(line, cols, i)
+			splitted[i] = line[from:to]
+		} else if len(line) > c.from {
+			from := findFrom(line, cols, i)
+			splitted[i] = line[from:]
+		} // if none of those two match splitted[i] will contains empty string
+	}
+	return splitted
+}
+
+func findFrom(line string, cols []column, i int) int {
+	prevColumn := 0
+	if i > 0 {
+		prevColumn = cols[i-1].to
+	}
+	from := cols[i].from
+	for {
+		_, w := utf8.DecodeLastRuneInString(line[:from])
+		// we can't extend return current
+		if w == 0 {
+			return from
+		}
+		// we have reached the line start
+		if from-w <= 0 {
+			return 0
+		}
+		// by extending the column we overlapped the previous column, lets return the original from
+		if from-w <= prevColumn {
+			return from
+		}
+		from -= w
+	}
+}
+
+func findTo(line string, cols []column, i int) int {
+	nextColumn := len(line)
+	if i < len(cols)-1 {
+		nextColumn = cols[i+1].from
+	}
+	to := cols[i].to
+	for {
+		_, w := utf8.DecodeRuneInString(line[to:])
+		// we can't extend return current
+		if w == 0 {
+			return to
+		}
+		// we have reached the line end, we are in the last column
+		if to+w == len(line) {
+			return len(line)
+		}
+		// by extending the column we overlapped the next column, lets return the original from
+		if to+w >= nextColumn {
+			return to
+		}
+		to += w
+	}
+}
