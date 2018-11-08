@@ -48,14 +48,17 @@ func LineContainingAny(ls ...[]string) func(string) bool {
 	for i, ss := range ls {
 		predicates[i] = LineContaining(ss...)
 	}
-	return func(line string) bool {
-		for _, predicate := range predicates {
-			if predicate(line) {
-				return true
-			}
-		}
-		return false
+	return AnyMatched(predicates...)
+}
+
+// LineContainingAnySingle behaves like LineContainingAny
+// but any token is enough to match, instead of requiring a slice
+func LineContainingAnySingle(ls ...string) func(string) bool {
+	predicates := make([]func(string) bool, len(ls))
+	for i, ss := range ls {
+		predicates[i] = LineContaining(ss)
 	}
+	return AnyMatched(predicates...)
 }
 
 // AllAreMatched accepts lines until all predicates are matched
