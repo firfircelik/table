@@ -3,8 +3,8 @@
   version = "1.4.0"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/pkg/errors"
+  version = "v0.8.1"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
