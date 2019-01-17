@@ -2,6 +2,8 @@ package table
 
 import (
 	"unicode/utf8"
+
+	"github.com/pkg/errors"
 )
 
 // ParseAligned table. Tries to parse table which looks like this:
@@ -15,7 +17,19 @@ import (
 // If none of the rows has the expected number of column, error is returned.
 // WARNING: This function does work only with ASCII strings
 // (so result might be wrong for UTF-8 strings)
-func ParseAligned(lines []string, nbColumn int) (Parsed, error) {
+func ParseAligned(lines []string, columnCounts ...int) (Parsed, error) {
+	if len(columnCounts) == 0 {
+		return Parsed{}, errors.New("at least one column count should be given")
+	}
+	for _, c := range columnCounts {
+		if p, err := parseAligned(lines, c); err == nil {
+			return p, nil
+		}
+	}
+	return Parsed{}, errors.Errorf("can't parse lines with column counts: %v", columnCounts)
+}
+
+func parseAligned(lines []string, nbColumn int) (Parsed, error) {
 	cols, err := columns(lines, nbColumn)
 	if err != nil {
 		return nil, err
