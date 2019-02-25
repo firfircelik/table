@@ -43,7 +43,7 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 `
 
 	var expectedParsedHTML = Parsed{
-		{original: "", parsed: []string{}}, // ParseFromHTML doesn't parse row headers
+		{original: "Location\tDelivery\tPrice", parsed: []string{"Location", "Delivery", "Price"}},
 		{original: "Delhi\tJanuary\t100", parsed: []string{"Delhi", "January", "100"}},
 		{original: "Pune\tFebruary\t80", parsed: []string{"Pune", "February", "80"}},
 		{original: "Pune\tNo prices\t", parsed: []string{"Pune", "No prices", ""}},
