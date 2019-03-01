@@ -20,7 +20,7 @@ func ParseFromHTML(s string) (Parsed, error) {
 			return
 		}
 		line := []string{}
-		s.Find("td").Each(func(i int, s *goquery.Selection) {
+		s.Find("td,th").Each(func(i int, s *goquery.Selection) {
 			if err != nil {
 				return
 			}
