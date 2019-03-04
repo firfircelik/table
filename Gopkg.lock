@@ -10,12 +10,12 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:6d80275e0f7330edaf57f2b0ae65e07de7c3646136c4200b8c7230727823833b"
+  digest = "1:54fe6d87a1d4bba331c14a94e8227dc84f92b2ed56da5106033810e313648f57"
   name = "github.com/agflow/agstring"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4b392829e71f1f92c830002a914899ea24d6ba63"
-  version = "v1.2.0"
+  revision = "9fc7da5ed36a08cb17deacd14341e4906ce3cac4"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:66b3310cf22cdc96c35ef84ede4f7b9b370971c4025f394c89a2638729653b11"

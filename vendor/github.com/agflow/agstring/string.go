@@ -374,3 +374,11 @@ func Map(ls []string, funcs ...func(string) string) []string {
 	}
 	return out
 }
+
+func Concat(slices ...[]string) []string {
+	var concatSlice []string
+	for _, slice := range slices {
+		concatSlice = append(concatSlice, slice...)
+	}
+	return concatSlice
+}
