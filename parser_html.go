@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/agflow/agstring"
 	"github.com/pkg/errors"
 )
 
@@ -19,6 +20,7 @@ func ParseFromHTML(s string) (Parsed, error) {
 		if err != nil {
 			return
 		}
+		originalLine := []string{}
 		line := []string{}
 		s.Find("td,th").Each(func(i int, s *goquery.Selection) {
 			if err != nil {
@@ -28,13 +30,14 @@ func ParseFromHTML(s string) (Parsed, error) {
 			if err2 != nil {
 				err = err2
 			}
-			line = append(line, strings.TrimSpace(s.Text()))
+			originalLine = append(originalLine, strings.TrimSpace(s.Text()))
+			line = append(line, string(agstring.NormalizeDiacritics(s.Text())))
 			for i := 1; i < colspan; i++ {
 				line = append(line, "")
 			}
 		})
 		p = append(p, parsedLine{
-			original: strings.Join(line, "\t"),
+			original: strings.Join(originalLine, "\t"),
 			parsed:   line,
 		})
 	})
