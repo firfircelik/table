@@ -43,10 +43,10 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 `
 
 	var expectedParsedHTML = Parsed{
-		{original: "Location\tDelivery\tPrice", parsed: []string{"location", "delivery", "price"}},
-		{original: "Delhi\tJanuary\t100", parsed: []string{"delhi", "january", "100"}},
-		{original: "Pune\tFebruary\t80", parsed: []string{"pune", "february", "80"}},
-		{original: "Pune\tNo prices", parsed: []string{"pune", "no prices", ""}},
+		{original: "location\tdelivery\tprice", parsed: []string{"location", "delivery", "price"}},
+		{original: "delhi\tjanuary\t100", parsed: []string{"delhi", "january", "100"}},
+		{original: "pune\tfebruary\t80", parsed: []string{"pune", "february", "80"}},
+		{original: "pune\tno prices\t", parsed: []string{"pune", "no prices", ""}},
 	}
 
 	// When
@@ -81,9 +81,9 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 `
 
 	expectedParsedHTML = Parsed{
-		{original: "NĚw YoRK\tMaRch\t200", parsed: []string{"new york", "march", "200"}},
-		{original: "ZÙriÇh\tApril\t100", parsed: []string{"zurich", "april", "100"}},
-		{original: "RoMÊ\tJuNĚ\t100", parsed: []string{"rome", "june", "100"}},
+		{original: "new york\tmarch\t200", parsed: []string{"new york", "march", "200"}},
+		{original: "zurich\tapril\t100", parsed: []string{"zurich", "april", "100"}},
+		{original: "rome\tjune\t100", parsed: []string{"rome", "june", "100"}},
 	}
 
 	// When

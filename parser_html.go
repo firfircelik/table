@@ -11,7 +11,8 @@ import (
 
 // ParseFromHTML table encoded inside string
 func ParseFromHTML(s string) (Parsed, error) {
-	p := Parsed{}
+	s = agstring.NormalizeDiacritics(s)
+	var p Parsed
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(s))
 	if err != nil {
 		return p, errors.Wrap(err, "can't parse html")
@@ -20,8 +21,7 @@ func ParseFromHTML(s string) (Parsed, error) {
 		if err != nil {
 			return
 		}
-		originalLine := []string{}
-		line := []string{}
+		var line []string
 		s.Find("td,th").Each(func(i int, s *goquery.Selection) {
 			if err != nil {
 				return
@@ -30,14 +30,13 @@ func ParseFromHTML(s string) (Parsed, error) {
 			if err2 != nil {
 				err = err2
 			}
-			originalLine = append(originalLine, strings.TrimSpace(s.Text()))
-			line = append(line, string(agstring.NormalizeDiacritics(s.Text())))
+			line = append(line, strings.TrimSpace(s.Text()))
 			for i := 1; i < colspan; i++ {
 				line = append(line, "")
 			}
 		})
 		p = append(p, parsedLine{
-			original: strings.Join(originalLine, "\t"),
+			original: strings.Join(line, "\t"),
 			parsed:   line,
 		})
 	})
