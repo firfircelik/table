@@ -11,7 +11,7 @@ func Normalize(s string) string {
 
 // NormalizeDiacritics remove diacritics from a normalized string
 func NormalizeDiacritics(s string) string {
-	return RemoveDiacritics(Normalize(s))
+	return Normalize(RemoveDiacritics(s))
 }
 
 // NormalizeDiacriticsAndNonAlnum first remove diacritics from a normalized string then remove
