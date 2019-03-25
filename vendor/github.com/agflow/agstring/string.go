@@ -312,28 +312,6 @@ func RegexpGroups(exp *regexp.Regexp, input string) (map[string]string, bool) {
 	return result, true
 }
 
-// TakeTo truncates each string in the input slice up to `n` characters.
-func TakeTo(ls []string, n int) []string {
-	out := make([]string, 0, len(ls))
-	for _, s := range ls {
-		rs := []rune(s)
-		o := string(rs[:min(len(rs), n)])
-		out = append(out, o)
-	}
-	return out
-}
-
-// TakeFrom removes the first `n` characters from each string in the input slice
-func TakeFrom(ls []string, n int) []string {
-	out := make([]string, 0, len(ls))
-	for _, s := range ls {
-		rs := []rune(s)
-		o := string(rs[min(len(rs), n):])
-		out = append(out, o)
-	}
-	return out
-}
-
 func min(a, b int) int {
 	if a < b {
 		return a
@@ -375,10 +353,19 @@ func Map(ls []string, funcs ...func(string) string) []string {
 	return out
 }
 
+// Concat returns a new slice with all the elements of slices on it
 func Concat(slices ...[]string) []string {
 	var concatSlice []string
 	for _, slice := range slices {
 		concatSlice = append(concatSlice, slice...)
 	}
 	return concatSlice
+}
+
+// ReplaceAll returns a string source with all elements of replacements replaced by toBeReplaced
+func ReplaceAll(source string, toBeReplaced string, replacements ...string) string {
+	for _, replacement := range replacements {
+		source = strings.Replace(source, replacement, toBeReplaced, -1)
+	}
+	return source
 }

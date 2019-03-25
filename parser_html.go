@@ -37,7 +37,6 @@ func ParseFromHTML(s string, options ...*Options) (Parsed, error) {
 		if err != nil {
 			return
 		}
-		println(s.Text())
 		var line []string
 		s.Find("td,th").Each(func(i int, s *goquery.Selection) {
 			if err != nil {

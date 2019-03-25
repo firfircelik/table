@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/agflow/agstring"
 	"github.com/pkg/errors"
 )
 
@@ -65,17 +66,8 @@ func isHeader(header, line []string) bool {
 	if len(line) < len(header) {
 		return false
 	}
-	return reflect.DeepEqual(header, trimSpace(line[:len(header)])) &&
+	return reflect.DeepEqual(header, agstring.TrimSpace(line[:len(header)]...)) &&
 		stringsOnlyWhitespace(line[len(header):])
-}
-
-// trimSpace trims spaces in the given slice
-// similar to strings.TrimSpace for a slice
-func trimSpace(ls []string) []string {
-	for i := range ls {
-		ls[i] = strings.TrimSpace(ls[i])
-	}
-	return ls
 }
 
 // stringsOnlyWhitespace checks if input consists of only whitespace
