@@ -9,18 +9,35 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ParseFromHTML table encoded inside string
-func ParseFromHTML(s string) (Parsed, error) {
+// Options to configure table parser
+type Options struct {
+	// Selector for rows to be parsed
+	RowsSelector string
+}
+
+// ParseFromHTML parses HTML tables into string with a variety of customizations
+// default selector: "table tr"
+func ParseFromHTML(s string, options ...*Options) (Parsed, error) {
+	var opts *Options
+	if len(options) > 0 {
+		opts = options[0]
+	}
+
+	if opts == nil {
+		opts = &Options{RowsSelector: "table tr"}
+	}
+
 	s = agstring.NormalizeDiacritics(s)
 	var p Parsed
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(s))
 	if err != nil {
 		return p, errors.Wrap(err, "can't parse html")
 	}
-	doc.Find("table tr").Each(func(i int, s *goquery.Selection) {
+	doc.Find(opts.RowsSelector).Each(func(i int, s *goquery.Selection) {
 		if err != nil {
 			return
 		}
+		println(s.Text())
 		var line []string
 		s.Find("td,th").Each(func(i int, s *goquery.Selection) {
 			if err != nil {
