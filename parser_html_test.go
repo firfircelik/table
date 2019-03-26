@@ -92,49 +92,12 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 	// Then
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
+}
 
-	htmlStr = `
-<html>
-<body>
-  <table>
-    <tr>
-      <th>Location</th>
-      <th>Delivery</th>
-      <th>Price</th>
-    </tr>
-    <tr>
-      <td>Delhi</td>
-      <td>January</td>
-      <td>100</td>
-    </tr>
-    <tr>
-      <td>Pune</td>
-      <td>February</td>
-      <td>80</td>
-    </tr>
-    <tr>
-      <td>Pune</td>
-      <td colspan="2">No prices</td>
-    </tr>
-  </table>
-</body>
-</html>
-`
-	expectedParsedHTML = Parsed{
-		{original: "location\tdelivery\tprice", parsed: []string{"location", "delivery", "price"}},
-		{original: "delhi\tjanuary\t100", parsed: []string{"delhi", "january", "100"}},
-		{original: "pune\tfebruary\t80", parsed: []string{"pune", "february", "80"}},
-		{original: "pune\tno prices\t", parsed: []string{"pune", "no prices", ""}},
-	}
+func (s *parseHTMLSuite) TestParseFromHTMLRowSelectorOption() {
 
-	// When
-	parsedHTML, err = ParseFromHTML(htmlStr, &Options{RowsSelector: "table tr"})
-
-	// Then
-	require.Nil(s.T(), err)
-	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
-
-	htmlStr = `
+	// Given
+	var htmlStr = `
 <html>
 <body>
   <table>
@@ -174,7 +137,7 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 </body>
 </html>
 `
-	expectedParsedHTML = Parsed{
+	expectedParsedHTML := Parsed{
 		{
 			original: "pretty location\tpretty delivery\tpretty price",
 			parsed:   []string{"pretty location", "pretty delivery", "pretty price"},
@@ -185,12 +148,13 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 	}
 
 	// When
-	parsedHTML, err = ParseFromHTML(htmlStr, &Options{RowsSelector: "table.pretty tr"})
+	parsedHTML, err := ParseFromHTML(htmlStr, &Options{RowSelector: "table.pretty tr"})
 
 	// Then
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
 
+	// Given
 	htmlStr = `
 <html>
  <body>
@@ -228,12 +192,16 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 	}
 
 	// When
-	parsedHTML, err = ParseFromHTML(htmlStr, &Options{RowsSelector: "table:nth-of-type(3) tr"})
+	parsedHTML, err = ParseFromHTML(htmlStr, &Options{RowSelector: "table:nth-of-type(3) tr"})
 
 	// Then
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
+}
 
+func (s *parseHTMLSuite) TestParseFromHTMLColspanOption() {
+
+	// Given
 	var tableWithColspan = `
 <html>
   <body>
@@ -258,14 +226,14 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 </html>
 `
 
-	expectedParsedHTML = Parsed{
+	expectedParsedHTML := Parsed{
 		{original: "new york\t\tmarch\t200", parsed: []string{"new york", "", "march", "200"}},
 		{original: "zurich\t\tapril\t100", parsed: []string{"zurich", "", "april", "100"}},
 		{original: "rome\t\tjune\t100", parsed: []string{"rome", "", "june", "100"}},
 	}
 
 	// When
-	parsedHTML, err = ParseFromHTML(tableWithColspan)
+	parsedHTML, err := ParseFromHTML(tableWithColspan)
 
 	// Then
 	require.Nil(s.T(), err)
@@ -285,6 +253,7 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
 
+	// Given
 	tableWithColspan = `
 <html>
   <body>
@@ -335,5 +304,4 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 	// Then
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
-
 }

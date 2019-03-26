@@ -12,7 +12,7 @@ import (
 // Options to configure table parser
 type Options struct {
 	// Selector for rows to be parsed
-	RowsSelector string
+	RowSelector string
 
 	// Process columns with colspan attribute as one column each
 	IgnoreColspan bool
@@ -28,8 +28,8 @@ func getOptions(options ...*Options) Options {
 		opts = &Options{}
 	}
 
-	if agstring.IsEmpty(opts.RowsSelector) {
-		opts.RowsSelector = "table tr"
+	if agstring.IsEmpty(opts.RowSelector) {
+		opts.RowSelector = "table tr"
 	}
 	return *opts
 }
@@ -45,7 +45,7 @@ func ParseFromHTML(s string, options ...*Options) (Parsed, error) {
 	if err != nil {
 		return p, errors.Wrap(err, "can't parse html")
 	}
-	doc.Find(opts.RowsSelector).Each(func(i int, s *goquery.Selection) {
+	doc.Find(opts.RowSelector).Each(func(i int, s *goquery.Selection) {
 		if err != nil {
 			return
 		}
