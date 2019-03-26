@@ -233,4 +233,107 @@ func (s *parseHTMLSuite) TestParseFromHTML() {
 	// Then
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
+
+	var tableWithColspan = `
+<html>
+  <body>
+    <table>
+		<tr>
+			<td colspan="2">NĚw YoRK</td>
+			<td>MaRch</td>
+			<td>200</td>
+		</tr>
+		<tr>
+			<td colspan="2">ZÙriÇh</td>
+			<td>April</td>
+			<td>100</td>
+		</tr>
+		<tr>
+			<td colspan="2"">RoMÊ</td>
+			<td>JuNĚ</td>
+			<td>100</td>
+		</tr>
+	</table>
+  </body>
+</html>
+`
+
+	expectedParsedHTML = Parsed{
+		{original: "new york\t\tmarch\t200", parsed: []string{"new york", "", "march", "200"}},
+		{original: "zurich\t\tapril\t100", parsed: []string{"zurich", "", "april", "100"}},
+		{original: "rome\t\tjune\t100", parsed: []string{"rome", "", "june", "100"}},
+	}
+
+	// When
+	parsedHTML, err = ParseFromHTML(tableWithColspan)
+
+	// Then
+	require.Nil(s.T(), err)
+	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
+
+	// To Ignore colspan
+	expectedParsedHTML = Parsed{
+		{original: "new york\tmarch\t200", parsed: []string{"new york", "march", "200"}},
+		{original: "zurich\tapril\t100", parsed: []string{"zurich", "april", "100"}},
+		{original: "rome\tjune\t100", parsed: []string{"rome", "june", "100"}},
+	}
+
+	// When
+	parsedHTML, err = ParseFromHTML(tableWithColspan, &Options{IgnoreColspan: true})
+
+	// Then
+	require.Nil(s.T(), err)
+	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
+
+	tableWithColspan = `
+<html>
+  <body>
+    <table>
+		<tr>
+			<td colspan="2">NĚw YoRK</td>
+			<td>MaRch</td>
+			<td>200</td>
+		</tr>
+		<tr>
+			<td>ZÙriÇh</td>
+			<td>Three</td>
+			<td>April</td>
+			<td>100</td>
+		</tr>
+		<tr>
+			<td colspan="2"">RoMÊ</td>
+			<td>JuNĚ</td>
+			<td>100</td>
+		</tr>
+	</table>
+  </body>
+</html>
+`
+
+	expectedParsedHTML = Parsed{
+		{original: "new york\t\tmarch\t200", parsed: []string{"new york", "", "march", "200"}},
+		{original: "zurich\tthree\tapril\t100", parsed: []string{"zurich", "three", "april", "100"}},
+		{original: "rome\t\tjune\t100", parsed: []string{"rome", "", "june", "100"}},
+	}
+
+	// When
+	parsedHTML, err = ParseFromHTML(tableWithColspan)
+
+	// Then
+	require.Nil(s.T(), err)
+	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
+
+	expectedParsedHTML = Parsed{
+		{original: "new york\tmarch\t200", parsed: []string{"new york", "march", "200"}},
+		{original: "zurich\tthree\tapril\t100", parsed: []string{"zurich", "three", "april", "100"}},
+		{original: "rome\tjune\t100", parsed: []string{"rome", "june", "100"}},
+	}
+
+	// When
+	parsedHTML, err = ParseFromHTML(tableWithColspan, &Options{IgnoreColspan: true})
+
+	// Then
+	require.Nil(s.T(), err)
+	require.Equal(s.T(), expectedParsedHTML, parsedHTML)
+
 }

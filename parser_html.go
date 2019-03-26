@@ -13,19 +13,31 @@ import (
 type Options struct {
 	// Selector for rows to be parsed
 	RowsSelector string
+
+	// Process columns with colspan attribute as one column each
+	IgnoreColspan bool
 }
 
-// ParseFromHTML parses HTML tables into string with a variety of customizations
-// default selector: "table tr"
-func ParseFromHTML(s string, options ...*Options) (Parsed, error) {
+func getOptions(options ...*Options) Options {
 	var opts *Options
 	if len(options) > 0 {
 		opts = options[0]
 	}
 
 	if opts == nil {
-		opts = &Options{RowsSelector: "table tr"}
+		opts = &Options{}
 	}
+
+	if agstring.IsEmpty(opts.RowsSelector) {
+		opts.RowsSelector = "table tr"
+	}
+	return *opts
+}
+
+// ParseFromHTML parses HTML tables into string with a variety of customizations
+// default selector: "table tr"
+func ParseFromHTML(s string, options ...*Options) (Parsed, error) {
+	opts := getOptions(options...)
 
 	s = agstring.NormalizeDiacritics(s)
 	var p Parsed
@@ -42,7 +54,7 @@ func ParseFromHTML(s string, options ...*Options) (Parsed, error) {
 			if err != nil {
 				return
 			}
-			colspan, err2 := extractColspan(s)
+			colspan, err2 := getColspan(s, &opts)
 			if err2 != nil {
 				err = err2
 			}
@@ -57,6 +69,17 @@ func ParseFromHTML(s string, options ...*Options) (Parsed, error) {
 		})
 	})
 	return p, err
+}
+
+func getColspan(s *goquery.Selection, opts *Options) (int, error) {
+	colspan, err := extractColspan(s)
+	if err != nil {
+		return 0, err
+	}
+	if opts.IgnoreColspan {
+		colspan = 1
+	}
+	return colspan, nil
 }
 
 func extractColspan(s *goquery.Selection) (int, error) {
