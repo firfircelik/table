@@ -3,6 +3,8 @@ package table
 import (
 	"regexp"
 	"strings"
+
+	funk "github.com/thoas/go-funk"
 )
 
 // FieldMatcher is a function type which is consumed by different table Cell finder functions.
@@ -28,18 +30,7 @@ func LineContainingSlices(ls ...[]string) func(string) bool {
 			m[s] = true
 		}
 	}
-	return LineContaining(strBoolMapKeys(m)...)
-}
-
-// strBoolMapKeys returns a list of keys from a map[string]bool
-func strBoolMapKeys(m map[string]bool) []string {
-	keys := make([]string, len(m))
-	i := 0
-	for s := range m {
-		keys[i] = s
-		i++
-	}
-	return keys
+	return LineContaining(funk.Keys(m).([]string)...)
 }
 
 // LineContainingAny behaves like line containing but any given slice is enough
