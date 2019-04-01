@@ -118,13 +118,10 @@ func findTo(line string, cols []column, i int) int {
 
 // DownFrom generates decreasing column numbers from start to end
 func DownFrom(start uint, end ...uint) []int {
-	var e int
-	if len(end) == 0 {
-		e = 0
-	} else {
+	s, e := int(start), 0
+	if len(end) > 0 {
 		e = int(end[0])
 	}
-	s := int(start)
 	cols := make([]int, s-e)
 	for i := range cols {
 		cols[i] = s - i
