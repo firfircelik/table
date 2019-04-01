@@ -6,6 +6,14 @@ import (
 	"github.com/pkg/errors"
 )
 
+func getAlignedOptions(options ...*Options) (*Options, error) {
+	opts := getOptions(options...)
+	if len(opts.NumberOfColumns) == 0 {
+		return opts, errors.New("at least one column count should be given")
+	}
+	return opts, nil
+}
+
 // ParseAligned table. Tries to parse table which looks like this:
 // a   b   c
 // aa  bb  c
@@ -17,16 +25,18 @@ import (
 // If none of the rows has the expected number of column, error is returned.
 // WARNING: This function does work only with ASCII strings
 // (so result might be wrong for UTF-8 strings)
-func ParseAligned(lines []string, columnCounts ...int) (Parsed, error) {
-	if len(columnCounts) == 0 {
-		return Parsed{}, errors.New("at least one column count should be given")
+func ParseAligned(lines []string, options ...*Options) (Parsed, error) {
+	opts, err := getAlignedOptions(options...)
+	if err != nil {
+		return Parsed{}, err
 	}
-	for _, c := range columnCounts {
+	for _, c := range opts.NumberOfColumns {
 		if p, err := parseAligned(lines, c); err == nil {
 			return p, nil
 		}
 	}
-	return Parsed{}, errors.Errorf("can't parse lines with column counts: %v", columnCounts)
+	return Parsed{}, errors.Errorf("can't parse lines with column counts: %v",
+		opts.NumberOfColumns)
 }
 
 func parseAligned(lines []string, nbColumn int) (Parsed, error) {
@@ -104,4 +114,20 @@ func findTo(line string, cols []column, i int) int {
 		}
 		to += w
 	}
+}
+
+// DownFrom generates decreasing column numbers from start to end
+func DownFrom(start uint, end ...uint) []int {
+	var e int
+	if len(end) == 0 {
+		e = 0
+	} else {
+		e = int(end[0])
+	}
+	s := int(start)
+	cols := make([]int, s-e)
+	for i := range cols {
+		cols[i] = s - i
+	}
+	return cols
 }

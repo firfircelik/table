@@ -159,7 +159,7 @@ func (s *tableSuite) TestParseAligned() {
 	lines := `
 aaa  bb   ccc
 aa    bb  cc`
-	result, err := ParseAligned(strings.Split(lines, "\n"), 3)
+	result, err := ParseAligned(strings.Split(lines, "\n"), &Options{NumberOfColumns: []int{3}})
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), [][]string{
 		{"", "", ""}, // first line is empty
@@ -172,7 +172,7 @@ func (s *tableSuite) TestParseAlignedExtendsColumnIfPossible() {
 	lines := `
 aax bb
 aa  bb`
-	result, err := ParseAligned(strings.Split(lines, "\n"), 2)
+	result, err := ParseAligned(strings.Split(lines, "\n"), &Options{NumberOfColumns: []int{2}})
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), [][]string{
 		{"", ""},       // first line is empty
@@ -186,7 +186,7 @@ func (s *tableSuite) TestParseAlignedGuessColumnsFromLinesWithWrongLength() {
 aax bb  ccc  ddd
 aa  bb  cc  dd
 aaaaa   cc ddddd`
-	result, err := ParseAligned(strings.Split(lines, "\n"), 4)
+	result, err := ParseAligned(strings.Split(lines, "\n"), &Options{NumberOfColumns: []int{4}})
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), [][]string{
 		{"", "", "", ""},
@@ -201,11 +201,43 @@ func (s *tableSuite) TestParseAlignedColumnsAreExtendedTowardsLineEnd() {
 	lines := `
 11  22  33
 11 222 3333`
-	result, err := ParseAligned(strings.Split(lines, "\n"), 3)
+	result, err := ParseAligned(strings.Split(lines, "\n"), &Options{NumberOfColumns: []int{3}})
 	require.Nil(s.T(), err)
 	require.Equal(s.T(), [][]string{
 		{"", "", ""},
 		{"11 ", " 22 ", " 33"},
 		{"11 ", "222 ", "3333"},
 	}, result.Lines())
+}
+
+func (s *tableSuite) TestParseAlignedDownFrom() {
+	lines := `
+11  22  33
+11 222 3333`
+
+	result, err := ParseAligned(strings.Split(lines, "\n"),
+		&Options{NumberOfColumns: DownFrom(5)})
+	require.Nil(s.T(), err)
+	require.Equal(s.T(), [][]string{
+		{"", "", ""},
+		{"11 ", " 22 ", " 33"},
+		{"11 ", "222 ", "3333"},
+	}, result.Lines())
+
+	result, err = ParseAligned(strings.Split(lines, "\n"),
+		&Options{NumberOfColumns: DownFrom(5, 2)})
+	require.Nil(s.T(), err)
+	require.Equal(s.T(), [][]string{
+		{"", "", ""},
+		{"11 ", " 22 ", " 33"},
+		{"11 ", "222 ", "3333"},
+	}, result.Lines())
+
+	_, err = ParseAligned(strings.Split(lines, "\n"),
+		&Options{NumberOfColumns: DownFrom(0)})
+	require.NotNil(s.T(), err)
+
+	_, err = ParseAligned(strings.Split(lines, "\n"),
+		&Options{NumberOfColumns: DownFrom(7, 4)})
+	require.NotNil(s.T(), err)
 }
